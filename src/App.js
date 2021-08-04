@@ -1,25 +1,51 @@
-import logo from './logo.svg';
 import './App.css';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { Component } from 'react';
+import Giphy from './Giphy'
+class App extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      apikey: 'apikey=' + process.env.REACT_APP_APIKEY,
+      searchURL: '',
+      giphTitle:'',
+      // giphy:[],
+    }
+  }
+  handleSubmit = (event)=>{
+    event.preventDefault()
+    const url = `https://api.giphy.com/v1/gifs/search?api_key=${process.env.REACT_APP_APIKEY}&q=${event.target.giphy.value}&limit=2&offset=0&rating=g&lang=en`
+    this.setState({
+          searchURL: url
+        }, () => {
+          fetch(this.state.searchURL)
+            .then(response => {
+              return response.json()
+            }).then(json => this.setState({
+              giphy: json,
+              giphTitle:'',
+            }),
+            err => console.log(err))
+        })
+  }
+    render () {
+      return (
+        <>
+          <form onSubmit={this.handleSubmit}>
+            <label htmlFor='giphy'>Giphy Search</label>
+            <input
+              id='giphy'
+              type='text'
+            />
+            <button
+              type='submit'
+            >Find </button>
+          </form>
+          {(this.state.giphy)
+        ? <Giphy giphy={this.state.giphy} />
+        : ''
+      }
+        </>
+      )
+    }
 }
-
 export default App;
